@@ -78,4 +78,38 @@
     
     2)번과 같은 과정이지만 객체가 복사 되는것만 다르다.
     
-  
+  #include"stdafx.h"
+#include <iostream>
+using namespace std;
+
+class AAA
+{
+	int val;
+
+public:
+	AAA(int i) {
+		val = i;
+	}
+	AAA(const AAA& a) {
+		cout << "AAA(const AAA&a) 호출" << endl;
+		val = a.val;
+	}
+	void ShowData() {
+		cout << "val: " << val << endl;
+	}
+};
+
+AAA function(void)
+{
+	AAA a(10);
+	return a;
+}
+
+
+int main()
+{
+	function(); //function().ShowData();
+	return 0;
+}
+
+//결과 : AAA(const AAA&a)호출
