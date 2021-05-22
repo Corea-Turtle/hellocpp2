@@ -230,7 +230,7 @@
 
   1) cout, cin, endl의 구현 이해
   
-     함수 오버로딩을 통해 구현 (int, string, double 등을 모두 각각 설정
+     함수 오버로딩을 통해 구현 (int, string, double 등을 모두 각각 설정)
     ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  
     #include<stdio.h>
 
@@ -253,7 +253,7 @@
                return *this;
             }
             ostream& operator<<(char i) {                   //endl이 출력되기 위해
-                printf("%c", i);
+                printf("%c", i);                            //const char* endl="/n"; 으로 바꿔주면 이부분은 생략 가능
                 return* this;
             }                                         
 
@@ -273,4 +273,174 @@
     
     2)<<,>> 연산자의 오버로딩
     
+    객체 자체를 <<를 통해 바로 프린트할 수 있을까? std에 정의 되어 있지 않으므로 안된다.
+    따라서 객체의 멤버함수를 <<,>>연산자를 통해 바로 프린트 하고 싶다면
+    <<,>> 연산자를 오버로딩하여 객체를 바로 연산 가능하도록 선언 및 정의 해줘야한다.
       
+    멤버 함수로 정의하려면 cout<<p => cout.operator<<(p)가 가능해야하는데 이는 C++표준에서 미리 정의되어 있지 않기 때문에 안된다.(변경도 불가능)
+      
+    따라서 전역 함수를 통해 정의 해줘야한다.
+      
+    ostream& operator<<(ostream& os, const Point& p) 이런 식으로 오버로딩 해준다.
+      
+    ostream& os에서 os는 ostringstream이다.
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    #include<iostream>
+    using namespace std;
+
+    class Point{
+    private:
+      int x, y;
+    public:
+      Point(int _x=0, int _y=0):x(_x), y(_y){}
+      friend ostream& operator<<(ostream& os, const Point& p);
+    };
+
+    ostream& operator<<(ostream&os, const Point& p)
+    {
+      os<<"["<<p.x<<", "<<p.y<<"]"<<endl;
+      retrun 0;
+    }
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    
+6.배열의 인덱스 연산자 오버로딩의 예
+
+  -배열 요소에 접근하는 [ ] 연산자의 오버로딩
+
+  1)기본 자료형 데이터를 저장할 수 있는 배열 클래스 만들기
+    
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+     #include<iostream>
+     using namespace std;
+
+     const int SIZE = 3; // 저장소의 크기
+
+     class Arr{
+     private:
+       int arr[SIZE];
+       int idx;
+     public:
+       Arr():idx(0){}           //생성자 Arr(), 멤버함수 idx는 0으로 초기화
+       int GetElem(int i);       //요소를 참조하는 함수
+       void SetElem(int i, int elem); //저장된 요소를 변경하는 함수
+       void AddElem(int elem);         //배열에 데이터를 저장하는 함수
+       void ShowAllDatd();     
+     };
+      int Arr::GetElem(int i){
+          return arr[i];
+      }
+      void Arr::SetElem(int i, int elem){
+          if(idx<=i){
+              cout<<"존재하지 않는 요소!"<<endl;
+              return;
+          }
+          arr[i] = elem;
+      }
+      void Arr::AddElem(int elem){
+          if(idx>=SIZE) {
+              cout<<"용량 초과!"endl;
+              return;
+          }
+          arr[idx++]=elem
+      }
+      void Arr::ShowAllData(){
+          for(int i=0, i<idx; i++)
+            cout<<"arr["<<i<<"]="<<arr[i]<<endl;
+      }
+
+      int main(void)
+      {
+        Arr arr;
+        arr.AddElem(1);
+        arr.AddElem(2);
+        arr.AddElem(3);
+        arr.ShowAllData();
+        
+        //개별요소 접근 및 변경
+        arr.SetElem(0, 10);          //배열의 느낌으로 하려면 arr[1] = 10 이렇게 해야함  arr[i] => arr.operator[](i)
+        arr.SetElem(1, 20);          //따라서 클래스 선언과 아래 정의에 아래 코드를 추가한다. 값을 넣으면 변해야하므로 참조자를 사용
+        arr.SetElem(2, 30);          //int& Arr::operator[](int i){ 
+                                     //     return arr[i]; 
+        cout<<arr.GetElem(0)<<endl;  //}
+        cout<<arr.GetElem(1)<<endl;
+        cout<<arr.GetElem(2)<<endl;
+
+        return 0;
+        }
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    
+      2)객체를 저장할 수 있는 배열 클래스
+      
+        객체를 배열에 저장할 때 고려해야 할 요소들
+        
+        1.객체의 저장방식 : 단순히 객체의 포인터를 저장하는 형태 | 객체 자체를 저장하는 형태
+        2.포인터를 저장하는 형태 - 배열 클래스의 객체 복사가 이뤄질 때 어떤 형태의 복사를 진행할 것인지
+                 단순히 포인터만 복사(얕은 복사) | 포인터가 가리키는 대상까지 복사(깊은 복사)
+        3.배열 클래스가 지녀야할 기능 - 해답은 없음, 구현해야할 프로그램의 성격에 따라 달라짐
+        
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    
+        #include<iostream>
+        using namespace std;
+        using std::ostream;
+        /******************Point Class******************/
+        class Point{
+        private:
+          int x, y;
+        public:
+          Point(int _x=0,int _y=0):x(_x),y(_y){}
+          friend ostream& operator<<(ostream& os, const Point& p); //만약 p객체가 선언 안되고 임시객체가 되더라도 출력됨
+        };
+
+        ostream& operator<<(ostream&os, const Point&p)
+        {
+            os<<"["<<p.x<<","<<p.y<<"]";
+            return os;
+        }
+
+        /***************PointArr Class********************/
+        const int SIZE = 5; // 저장소의 크기
+        
+        class PointArr {
+        private:
+           Point arr[SIZE];
+           int idx;
+        public:
+           PointArr():idx(0){}
+           void AddElem(const Point& elem);
+           void ShowAllData();
+           Point& operator[](int i) //배열 요소에 접근   
+        };
+        void PointArr::AddElem(const Point& elem){
+            if(idx>=SIZE){
+                cout<<"용량 초과"<<endl;
+                return ;
+            }
+            arr(idx++) = elem;
+        }
+        void PointArr::ShowAllData(){
+              for(int i=0; i<idx; i++)
+                  cout<<"arr["<<i<<"]="<<arr[i]<<endl;
+        }
+        Point& PointArr::operator[](int i){
+            return arr[i];
+        }
+
+        int main(void)
+        {
+        PointArr arr;
+          
+        arr.AddElem(Point(1,1));  //임시객체를 매개변수로 사용해서 arr[0]에 Point class의 멤버 변수 x = 1, y = 1을 넣었다.
+                                  //임시객체는 생성되자마자 배열에 값이 복사 되고 바로 사라진다.
+        //개별 요소 접근 및 변경
+        arr[0]= Point(10.10);
+          
+        cout<<arr[0]<<endl;
+          
+        return 0;
+        }
+        
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+7.반드시 해야만 하는 대입 연산자의 오버로딩
+
+  1)
