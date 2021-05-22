@@ -152,7 +152,7 @@
       때문에 c++에서는 이 둘을 구분짓기 위해
       
       ++p -> p.operator++();
-      p++ -> p.oeratort++(int);
+      p++ -> p.oeratort++(int); int를 붙혀준다.
 ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
       #include<iostream>
       using namespace std;
@@ -230,5 +230,47 @@
 
   1) cout, cin, endl의 구현 이해
   
-     
+     함수 오버로딩을 통해 구현 (int, string, double 등을 모두 각각 설정
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  
+    #include<stdio.h>
+
+    namespace mystd // mystd라는 소속 시작
+    {
+        char endl = '\n';
+        class ostream // 클래스 ostream 정의
+       {
+        public:
+           ostream& operator<<(const char* str) {       //const를 붙히면 제대로 출력되지만 안붙히면 오류가 뜬다.
+                printf("%s", str);                      //const char* 는 문자배열(""에 쓰는데 프로그램 시작부터 쓰기 불가능한 영역에 \n을 써놓고 
+               return *this;                            //그곳을 가리키는 포인터를 return하기 때문이다
+            }
+            ostream& operator<<(int i) {
+                printf("%d", i);
+                return *this;
+            }
+           ostream& operator<<(double i) {
+                printf("%e", i);
+               return *this;
+            }
+            ostream& operator<<(char i) {                   //endl이 출력되기 위해
+                printf("%c", i);
+                return* this;
+            }                                         
+
+        };
+        ostream cout; //cout 객체 생성
+     } //mystd 소속 끝
+
+    using mystd::cout;
+    using mystd::endl;
+
+    int main()
+    {
+        cout << "Hello " << endl<< 3 << endl << 3.14 << endl;
+       return 0;
+    }
+    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    
+    2)<<,>> 연산자의 오버로딩
+    
       
